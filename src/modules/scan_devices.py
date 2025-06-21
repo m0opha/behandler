@@ -88,7 +88,7 @@ def scanner_interface():
     with TerminalRawMode():
         scanner.start()
         printAt(1, 0, "Scanning Bluetooth devices (Ctrl+C to exit, Enter to select)...")
-        printAt(2, 0, "Use ↑ ↓ to navigate, Enter to select, Ctrl+C to exit.")
+        printAt(2, 0, "Use ↑ ↓ to navigate.")
         try:
             while True:
                 devices = scanner.getDevices()

@@ -1,5 +1,4 @@
 import subprocess
-from .colors import pError, pWarning
 
 def setBluetoothAudio():
     #i dont know why this works!
