@@ -89,11 +89,14 @@ def scanner_interface():
 
     last_check = 0
     check_interval = 0.3  # revisa dispositivos cada 300 ms
+    
+    start_at = 4
 
     with TerminalRawMode():
         scanner.start()
-        printAt(1, 0, "Scanning Bluetooth devices (Ctrl+C to exit, Enter to select)...")
-        printAt(2, 0, "Use ↑ ↓ to navigate.")
+        printAt(1, 0, "Scanning Bluetooth devices, Ctrl+C to exit, Enter to select")
+        printAt(2, 0, "                                        Use ↑ ↓ to navigate")
+        printAt(3, 0, "___________________________________________________________")
         try:
             while True:
                 now = time.time()
@@ -111,10 +114,12 @@ def scanner_interface():
                     # Actualizar pantalla solo si cambió lista o selección
                     if items != prev_items or selection != prev_selection:
                         for i in range(max(len(prev_items), len(items))):
-                            printAt(3 + i, 0, "\033[2K")
+                            printAt(start_at + i, 0, "\033[2K")
+                            
                         for i, (mac, name) in enumerate(items):
                             prefix = "> " if i == selection else "  "
-                            printAt(3 + i, 0, f"{prefix}{mac} : {name}")
+                            printAt(start_at + i, 0, f"{prefix}{mac} : {name}")
+                        
                         prev_items = items
                         prev_selection = selection
 

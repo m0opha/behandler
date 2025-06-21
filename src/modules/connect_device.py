@@ -13,7 +13,8 @@ def connect(mac_address, device_name, timeout=30):
             timeout=timeout
         )
     except subprocess.TimeoutExpired:
-        pError(f"[-] Timeout connecting to {device_name}")
+        pError(f"[-] Timeout connecting to", no_salt=True)
+        print(device_name)
         return False
 
     if result.returncode != 1:
@@ -21,5 +22,6 @@ def connect(mac_address, device_name, timeout=30):
         print(device_name)
         return True
 
-    pError(f"[-] Failed to connect to ", no_salt=True)
+    pError(f"[-] Couldn't connect to ", no_salt=True)
+    print(device_name)
     return False
