@@ -48,7 +48,7 @@ class BluetoothScanner:
             self.thread.join()
 
     def _read_output(self):
-        while self.running:
+        while self.running:            
             raw_line = self.process.stdout.readline()
             if not raw_line:
                 break
@@ -79,11 +79,16 @@ class BluetoothScanner:
             return dict(self.devices)
         
 
+import time
+
 def scanner_interface():
     scanner = BluetoothScanner()
     prev_items = []
     prev_selection = -1
     selection = 0
+
+    last_check = 0
+    check_interval = 0.3  # revisa dispositivos cada 300 ms
 
     with TerminalRawMode():
         scanner.start()
@@ -91,52 +96,47 @@ def scanner_interface():
         printAt(2, 0, "Use ↑ ↓ to navigate.")
         try:
             while True:
-                devices = scanner.getDevices()
-                items = list(devices.items()) if devices else []
+                now = time.time()
+                if now - last_check >= check_interval:
+                    devices = scanner.getDevices()
+                    items = list(devices.items()) if devices else []
+                    last_check = now
 
-                # Limitar selection al rango válido
-                if selection >= len(items):
-                    selection = max(0, len(items) - 1)
-                if selection < 0:
-                    selection = 0
+                    # Limitar selection al rango válido
+                    if selection >= len(items):
+                        selection = max(0, len(items) - 1)
+                    if selection < 0:
+                        selection = 0
 
-                # Actualizar pantalla solo si cambió lista o selección
-                if items != prev_items or selection != prev_selection:
-                    # Limpiar líneas previas
-                    for i in range(max(len(prev_items), len(items))):
-                        printAt(3 + i, 0, "\033[2K")
-
-                    # Imprimir lista con selector
-                    for i, (mac, name) in enumerate(items):
-                        prefix = "> " if i == selection else "  "
-                        printAt(3 + i, 0, f"{prefix}{mac} : {name}")
-
-                    prev_items = items
-                    prev_selection = selection
-
+                    # Actualizar pantalla solo si cambió lista o selección
+                    if items != prev_items or selection != prev_selection:
+                        for i in range(max(len(prev_items), len(items))):
+                            printAt(3 + i, 0, "\033[2K")
+                        for i, (mac, name) in enumerate(items):
+                            prefix = "> " if i == selection else "  "
+                            printAt(3 + i, 0, f"{prefix}{mac} : {name}")
+                        prev_items = items
+                        prev_selection = selection
 
                 key = getch()
-
                 if key is None:
+                    time.sleep(0.05)
                     continue
 
                 if key == '\x03':  # Ctrl+C
                     return None
-
-                if key == '\r' or key == '\n':  # Enter
+                if key == '\r' or key == '\n':
                     if items:
-                        selected_device = items[selection]
-                        return selected_device
-
-                if key == '\x1b[A':  # Flecha arriba
+                        return items[selection]
+                if key == '\x1b[A':
                     if selection > 0:
                         selection -= 1
                     continue
-
-                if key == '\x1b[B':  # Flecha abajo
+                if key == '\x1b[B':
                     if selection < len(items) - 1:
                         selection += 1
                     continue
+
         except Exception as e:
             print(f"Error: {e}")
             return None

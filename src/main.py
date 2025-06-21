@@ -68,7 +68,7 @@ def main():
             device_name, mac_address = list(devices.items())[0]
             connect(mac_address, device_name)
             return
-
+        
         print("Select Bluetooth device:")
         for index, (device_name, _) in enumerate(devices.items()):
             print(f"[{index}] {device_name}")
