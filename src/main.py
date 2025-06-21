@@ -10,7 +10,6 @@ def main():
     device_name = ""
     mac_address = ""
 
-    #if already is connect a device
     if current_device:
         (device_name, mac_address), = current_device.items()
     parser = argparse.ArgumentParser(
