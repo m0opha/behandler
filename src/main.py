@@ -15,7 +15,7 @@ def main():
     parser = argparse.ArgumentParser(
         usage="behandler [-c [INDEX]] [-d] [-s]",
         description="Bluetooth device handler",
-        formatter_class=HelpFormatter  # si estás usando tu formatter personalizado
+        formatter_class=HelpFormatter
     )
     
     parser.add_argument('--connect','-c', nargs='?', const=True, default=False, type=int,
