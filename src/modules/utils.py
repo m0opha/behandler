@@ -6,8 +6,6 @@ import tty
 import shutil
 import select
 
-
-
 class HelpFormatter(argparse.HelpFormatter):
     def _format_action_invocation(self, action: argparse.Action) -> str:
         if not action.option_strings:
