@@ -34,7 +34,7 @@ def main():
     
     #scan and connect bluetooth devices
     if args.scan:
-        scan_data = scanBluetoothDevices()
+        scan_data = scanner_interface()
         if not scan_data:
             pError("[-]Scanner error")
             return
