@@ -4,6 +4,23 @@ import sys
 from .modules import *
 
 def main():
+    parser = argparse.ArgumentParser(
+        usage="behandler [-c [INDEX]] [-d] [-s][-r]",
+        description="Bluetooth device handler",
+        formatter_class=HelpFormatter
+    )
+    
+    parser.add_argument('--connect','-c', nargs='?', const=True, default=False, type=int,help="connect device by index.")
+    parser.add_argument('--disconnect', '-d', action='store_true', help="disconnect device")
+    parser.add_argument('--scan', '-s' ,action='store_true' , help="scan avalible bluetooth devices")
+    parser.add_argument('--remove' , "-r", action='store_true', help="remove bluetooth device")
+
+    if len(sys.argv) == 1:
+        parser.print_help()
+        return
+
+    args = parser.parse_args()
+    
     devices = getAllBluetoothDevices()
     current_device = getCurrentDeviceName()
 
@@ -12,30 +29,41 @@ def main():
 
     if current_device:
         (device_name, mac_address), = current_device.items()
-    parser = argparse.ArgumentParser(
-        usage="behandler [-c [INDEX]] [-d] [-s]",
-        description="Bluetooth device handler",
-        formatter_class=HelpFormatter
-    )
     
-    parser.add_argument('--connect','-c', nargs='?', const=True, default=False, type=int,
-                        help="connect device by index.")
-    
-    parser.add_argument('--disconnect', '-d', action='store_true', help="disconnect device")
+    # Remove bluetooth device
+    if args.remove:
+        
+        if len(devices) == 0:
+            pWarning("[*] No bluetooth devices found")
+            return
 
-    parser.add_argument('--scan', '-s' ,action='store_true' , help="scan avalible bluetooth devices")
-    
-    if len(sys.argv) == 1:
-        parser.print_help()
+        for _index, (_name , _mac) in enumerate(devices.items()):
+            print(f"[{_index}] {_name}")
+        
+        option = input(f"> ")
+
+        if not option.isdigit():
+            pError("[-] Selection must be a digit")
+        
+        option = int(option)
+        if len(devices) <= option:
+            pError("[-] Out of range.")
+
+        device_name = list(devices.keys())[option]
+        if removeDevice(devices[device_name]):
+            pWarning("[*] Removed device ", no_salt=True)
+            print(device_name)
+            return
+
+        pError("[-] Not removed device" , no_salt=True)
+        print(device_name)
         return
 
-    args = parser.parse_args()
-    
-    #scan and connect bluetooth devices
+    # Pair bluetooth device and connect
     if args.scan:
         scan_data = scanner_interface()
         if not scan_data:
-            pError("[-]Scanner error")
+            pError("[-] Scan failed")
             return
         
         mac_address , device_name = scan_data 
@@ -43,7 +71,7 @@ def main():
         connect(mac_address, device_name)
         return
             
-    # Desconectar
+    # Disconnect
     if args.disconnect:
         if device_name == "":
             pWarning("[!] There is no active Bluetooth connection.")
@@ -58,10 +86,10 @@ def main():
         print(device_name)
         return
 
-    #automate connect
+    # Automatic connection
     if args.connect is True:
         if not devices:
-            pWarning("[!] No Bluetooth devices registered.")
+            pWarning("[!] No Bluetooth devices register.")
             return
 
         if len(devices) == 1:
@@ -85,13 +113,14 @@ def main():
         
         device_name, mac_address = list(devices.items())[selected_device]
         connect(mac_address, device_name)
-        setBluetoothAudio()
         return
 
     if len(devices) >= args.connect:
         device_name, mac_address = next(iter(devices.items()))
         connect(mac_address, device_name)
         return        
+    
     else:
         pError("[!] No device found.")
         return
+

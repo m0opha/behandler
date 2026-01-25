@@ -1,3 +1,4 @@
+import time
 import subprocess
 import threading
 from threading import Lock
@@ -78,9 +79,6 @@ class BluetoothScanner:
                 return None
             return dict(self.devices)
         
-
-import time
-
 def scanner_interface():
     scanner = BluetoothScanner()
     prev_items = []
@@ -143,7 +141,7 @@ def scanner_interface():
                     continue
 
         except Exception as e:
-            print(f"Error: {e}")
             return None
+        
         finally:
             scanner.stop()
