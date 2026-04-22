@@ -1,7 +1,7 @@
 import argparse
 import sys
 
-from verify_bluetoothctl import verify_bluetoothctl
+from modules.verify_bluetoothctl import verify_bluetoothctl
 
 def main():
     parser = argparse.ArgumentParser(

@@ -9,33 +9,25 @@ import json
 import select
 import sys
 
-from vars.setup import _TEST, space_TEST
-from modules.test import test
+try:
+    from colorama import Fore, Back, Style
 
-def execute(
-        cmd: str, 
-        input: str = None,
-        return_output = False,
-        _TEST = False
-        ) -> bool:
+except ImportError:
+    print("Is required install colorama in the system.")    
+    sys.exit(1)
+
+def execute(cmd:str, input:str = None, return_output:bool = False) -> bool:
     
     cmd = list(cmd.split(" "))
 
     result = subprocess.run(
         cmd,
-        #shell=True,
         capture_output=True,
         text=True,
         input=input
     )
 
-    if _TEST:
-        print(f"{space_TEST}Command: {" ".join(cmd)}")
-        print(f"{space_TEST}stdout: {len(result.stdout.strip("\n"))}")
-        print(f"{space_TEST}stderr: {len(result.stderr)}")
-        print(f"{space_TEST}returncode: {result.returncode}")
-
-    if return_output and result.returncode == 0:
+    if return_output:
         return result.stdout.strip("\n")
 
     return result.returncode == 0
@@ -78,7 +70,6 @@ def datatodict(
     return builddict
 
 
-
 def printAt(row, col, text):
     term_rows, term_cols = shutil.get_terminal_size()
 
@@ -96,14 +87,12 @@ def printAt(row, col, text):
     print(f"\033[{row};{col}H{text}", end='', flush=True)
 
 
-
-def clean_string(line):
+def clean_string(string:str):
     ansi_escape = re.compile(r'\x1B[@-_][0-?]*[ -/]*[@-~]')
-    line = ansi_escape.sub('', line)
+    string = ansi_escape.sub('', string)
     control_chars = ''.join(map(chr, range(0, 32)))
     control_char_re = re.compile(f'[{re.escape(control_chars)}]')
-    return control_char_re.sub('', line).strip()
-
+    return control_char_re.sub('', string).strip()
 
 
 class TerminalRawMode:
@@ -141,15 +130,8 @@ def getch(timeout=0):
     ch2 = sys.stdin.read(2)
     return ch1+ch2
 
-###########################################
-#           TESTING.........
-###########################################
-_TOTEST = [
-    # fun        test_status   args                            _TEST
-    [execute,    0,            ("echo \'testing this fun.\'",  False)],
-    [datatodict, 0,            ("=","1=1\n2=2\n3=3",           True )]    
-]
+def printSuccess(text, salt=True):
+    print(f"{Style.BRIGHT}{Fore.GREEN}{text}{Style.RESET_ALL}", end="" if not salt else "\n")
 
-if __name__ == "__main__":
-    if _TEST:
-        test(_TOTEST)
+def printError(text, salt=True):
+    print(f"{Style.BRIGHT}{Fore.RED}{text}{Style.RESET_ALL}", end="" if not salt else "\n")
